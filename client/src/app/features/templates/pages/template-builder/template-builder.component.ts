@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { TemplateService } from '../../template.service';
 
@@ -12,6 +12,8 @@ import { TemplateService } from '../../template.service';
 })
 export class TemplateBuilderComponent {
   readonly form;
+  readonly isEditMode;
+  readonly templateId;
   error = '';
   isSubmitting = false;
   submitted = false;
@@ -19,8 +21,13 @@ export class TemplateBuilderComponent {
   constructor(
     private readonly fb: FormBuilder,
     private readonly templateService: TemplateService,
+    private readonly route: ActivatedRoute,
     private readonly router: Router
   ) {
+    const id = this.route.snapshot.paramMap.get('id');
+    this.templateId = id;
+    this.isEditMode = !!id;
+
     this.form = this.fb.group({
       name: ['', [Validators.required]],
       hasLineItems: [false],
@@ -41,6 +48,30 @@ export class TemplateBuilderComponent {
         })
       ])
     });
+
+    if (id) {
+      this.templateService.getOne(id).subscribe({
+        next: (template) => {
+          const mappedFields = template.fields.map((field) =>
+            this.fb.group({
+              key: [field.key, Validators.required],
+              label: [field.label, Validators.required],
+              type: [field.type, Validators.required],
+              required: [field.required],
+              defaultValue: [field.defaultValue ?? '']
+            })
+          );
+          this.form.patchValue({
+            name: template.name,
+            hasLineItems: template.hasLineItems
+          });
+          this.form.setControl('fields', this.fb.array(mappedFields) as any);
+        },
+        error: () => {
+          this.error = 'Unable to load template for editing.';
+        }
+      });
+    }
   }
 
   get fields(): FormArray {
@@ -76,7 +107,12 @@ export class TemplateBuilderComponent {
 
     this.error = '';
     this.isSubmitting = true;
-    this.templateService.create(this.form.getRawValue() as never).subscribe({
+    const payload = this.form.getRawValue() as never;
+    const request$ = this.isEditMode && this.templateId
+      ? this.templateService.update(this.templateId, payload)
+      : this.templateService.create(payload);
+
+    request$.subscribe({
       next: () => {
         this.isSubmitting = false;
         this.router.navigateByUrl('/templates');

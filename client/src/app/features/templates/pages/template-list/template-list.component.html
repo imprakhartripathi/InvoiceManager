@@ -11,7 +11,6 @@
     </div>
   </header>
 
-  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
   <p class="error" *ngIf="error">{{ error }}</p>
 
   <div class="template-grid" *ngIf="templates().length; else emptyState">
@@ -21,6 +20,7 @@
         <mat-chip-set>
           <mat-chip>{{ t.fields.length }} Fields</mat-chip>
           <mat-chip *ngIf="t.hasLineItems">Line Items</mat-chip>
+          <mat-chip class="chip-in-use" *ngIf="t.inUse">In Use</mat-chip>
         </mat-chip-set>
       </div>
 
@@ -29,6 +29,8 @@
       </div>
 
       <div class="card-actions">
+        <button mat-stroked-button [routerLink]="['/templates/edit', t.id]">Edit Template</button>
+        <button mat-stroked-button color="warn" (click)="deleteTemplate(t)" [disabled]="t.inUse">Delete Template</button>
         <button mat-stroked-button [routerLink]="['/invoices/new', t.id]">Create Invoice</button>
       </div>
     </mat-card>

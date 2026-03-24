@@ -6,8 +6,6 @@
   </header>
 
   <mat-card class="settings-card">
-    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-
     <form [formGroup]="form" (ngSubmit)="submit()">
       <mat-checkbox formControlName="enabled">Enable custom SMTP</mat-checkbox>
 

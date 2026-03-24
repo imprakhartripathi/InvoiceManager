@@ -1,27 +1,41 @@
 <section class="auth-page">
-  <mat-card class="auth-card">
-    <h1>Welcome Back</h1>
-    <p class="subtitle">Sign in to manage templates, invoices, and payments.</p>
+  <div class="auth-shell">
+    <section class="brand-panel">
+      <p class="brand-kicker">Invoice Manager</p>
+      <h1>Billing that looks professional from day one</h1>
+      <p class="brand-text">Create templates, send invoices, track status, and accept payments in one workflow.</p>
+      <ul>
+        <li>Dynamic invoice templates</li>
+        <li>Email delivery + payment links</li>
+        <li>Cash and Razorpay settlement tracking</li>
+      </ul>
+    </section>
 
-    <form [formGroup]="form" (ngSubmit)="submit()">
-      <mat-form-field appearance="outline">
-        <mat-label>Email</mat-label>
-        <input matInput type="email" formControlName="email" />
-        <mat-error *ngIf="submitted && form.controls.email.invalid">Please enter a valid email.</mat-error>
-      </mat-form-field>
+    <mat-card class="auth-card">
+      <p class="eyebrow">Welcome back</p>
+      <h2>Sign in</h2>
+      <p class="subtitle">Use your account to continue to your billing workspace.</p>
 
-      <mat-form-field appearance="outline">
-        <mat-label>Password</mat-label>
-        <input matInput type="password" formControlName="password" />
-        <mat-error *ngIf="submitted && form.controls.password.invalid">Password is required.</mat-error>
-      </mat-form-field>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" />
+          <mat-error *ngIf="submitted && form.controls.email.invalid">Please enter a valid email.</mat-error>
+        </mat-form-field>
 
-      <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
-        {{ isSubmitting ? 'Signing in...' : 'Sign In' }}
-      </button>
-    </form>
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" />
+          <mat-error *ngIf="submitted && form.controls.password.invalid">Password is required.</mat-error>
+        </mat-form-field>
 
-    <p class="error" *ngIf="error">{{ error }}</p>
-    <p class="switch">New here? <a routerLink="/auth/signup">Create an account</a></p>
-  </mat-card>
+        <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Signing in...' : 'Sign In' }}
+        </button>
+      </form>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+      <p class="switch">New here? <a routerLink="/auth/signup">Create an account</a></p>
+    </mat-card>
+  </div>
 </section>

@@ -33,4 +33,23 @@ export class TemplateListComponent implements OnInit {
       }
     });
   }
+
+  deleteTemplate(template: TemplateDto): void {
+    if (template.inUse) {
+      this.error = 'This template is in use by existing invoices and cannot be deleted.';
+      return;
+    }
+
+    const confirmed = window.confirm(`Delete template "${template.name}"?`);
+    if (!confirmed) {
+      return;
+    }
+
+    this.templateService.delete(template.id).subscribe({
+      next: () => this.refresh(),
+      error: (err) => {
+        this.error = err?.error?.message ?? 'Unable to delete template.';
+      }
+    });
+  }
 }

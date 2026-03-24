@@ -96,30 +96,11 @@ export class InvoiceListComponent implements OnInit {
     });
   }
 
-  deleteInvoice(invoice: InvoiceDto): void {
-    if (invoice.status === 'PAID') {
-      this.error = 'PAID invoices cannot be deleted.';
-      return;
-    }
-
-    const confirmDelete = window.confirm(`Delete invoice ${invoice.id}?`);
-    if (!confirmDelete) {
-      return;
-    }
-
-    this.invoiceService.remove(invoice.id).subscribe({
-      next: () => this.loadInvoices(),
-      error: (err) => {
-        this.error = err?.error?.message ?? 'Failed to delete invoice.';
-      }
-    });
-  }
-
   markSent(invoice: InvoiceDto): void {
     this.invoiceService.markSent(invoice.id).subscribe({
       next: () => this.loadInvoices(),
       error: (err) => {
-        this.error = err?.error?.message ?? 'Failed to mark invoice as SENT.';
+        this.error = err?.error?.message ?? 'Failed to send invoice.';
       }
     });
   }

@@ -7,5 +7,6 @@ public record TemplateResponse(
         String userId,
         String name,
         List<TemplateFieldDto> fields,
-        boolean hasLineItems) {
+        boolean hasLineItems,
+        boolean inUse) {
 }

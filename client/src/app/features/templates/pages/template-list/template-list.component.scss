@@ -79,7 +79,15 @@
 .card-actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin-top: 0.15rem;
+}
+
+.chip-in-use {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  border: 1px solid #fecaca;
 }
 
 .empty-state {

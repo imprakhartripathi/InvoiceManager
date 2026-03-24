@@ -6,7 +6,8 @@ import { TemplateListComponent } from './pages/template-list/template-list.compo
 
 const routes: Routes = [
   { path: '', component: TemplateListComponent },
-  { path: 'new', component: TemplateBuilderComponent }
+  { path: 'new', component: TemplateBuilderComponent },
+  { path: 'edit/:id', component: TemplateBuilderComponent }
 ];
 
 @NgModule({

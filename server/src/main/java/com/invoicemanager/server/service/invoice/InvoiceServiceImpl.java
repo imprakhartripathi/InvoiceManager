@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,13 @@ import com.invoicemanager.server.model.PaidVia;
 import com.invoicemanager.server.model.InvoiceStatus;
 import com.invoicemanager.server.model.Template;
 import com.invoicemanager.server.model.TemplateField;
+import com.invoicemanager.server.model.User;
+import com.invoicemanager.server.model.UserSettings;
 import com.invoicemanager.server.repository.InvoiceRepository;
 import com.invoicemanager.server.repository.TemplateRepository;
+import com.invoicemanager.server.repository.UserRepository;
+import com.invoicemanager.server.repository.UserSettingsRepository;
+import com.invoicemanager.server.service.email.EmailOrchestratorService;
 import com.invoicemanager.server.util.InvoiceCalculationUtil;
 import com.invoicemanager.server.util.OwnershipValidator;
 
@@ -29,9 +35,13 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class InvoiceServiceImpl implements InvoiceService {
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
 
     private final TemplateRepository templateRepository;
     private final InvoiceRepository invoiceRepository;
+    private final UserRepository userRepository;
+    private final UserSettingsRepository userSettingsRepository;
+    private final EmailOrchestratorService emailOrchestratorService;
     private final InvoiceCalculationUtil invoiceCalculationUtil;
     private final OwnershipValidator ownershipValidator;
 
@@ -63,30 +73,12 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public InvoiceResponse updateInvoice(String userId, String invoiceId, UpdateInvoiceRequest request) {
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
-        ownershipValidator.ensureOwner(userId, invoice.getUserId());
-        ensureMutable(invoice);
-
-        Template template = templateRepository.findById(invoice.getTemplateId())
-                .orElseThrow(() -> new ResourceNotFoundException("Template not found"));
-        validateTemplateData(template, request.data());
-
-        invoice.setDisplayName(request.displayName().trim());
-        invoice.setData(request.data());
-        invoice.setLineItems(template.isHasLineItems() ? request.lineItems() : List.of());
-        invoice.setTotal(invoiceCalculationUtil.calculateTotal(request.lineItems()));
-
-        return toResponse(invoiceRepository.save(invoice));
+        throw new ValidationException("Invoice editing is not allowed");
     }
 
     @Override
     public void deleteInvoice(String userId, String invoiceId) {
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
-        ownershipValidator.ensureOwner(userId, invoice.getUserId());
-        ensureMutable(invoice);
-        invoiceRepository.delete(invoice);
+        throw new ValidationException("Invoice deletion is not allowed");
     }
 
     @Override
@@ -122,7 +114,21 @@ public class InvoiceServiceImpl implements InvoiceService {
             throw new ValidationException("Only DRAFT invoices can be marked as SENT");
         }
 
+        String recipient = extractStringField(invoice.getData(), "customerEmail");
+        if (!EMAIL_PATTERN.matcher(recipient).matches()) {
+            throw new ValidationException("Invoice requires a valid customerEmail before sending");
+        }
+
+        User owner = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        UserSettings settings = userSettingsRepository.findByUserId(userId).orElse(null);
+
         invoice.setStatus(InvoiceStatus.SENT);
+        try {
+            emailOrchestratorService.sendInvoice(owner, invoice, settings, recipient);
+        } catch (Exception ex) {
+            throw new ValidationException("Unable to send invoice email. Check SMTP settings and recipient email.");
+        }
         return toResponse(invoiceRepository.save(invoice));
     }
 
@@ -194,12 +200,6 @@ public class InvoiceServiceImpl implements InvoiceService {
                 invoice.getPaidAt());
     }
 
-    private void ensureMutable(Invoice invoice) {
-        if (invoice.getStatus() == InvoiceStatus.PAID) {
-            throw new ValidationException("PAID invoices are immutable");
-        }
-    }
-
     private void ensurePayable(Invoice invoice) {
         if (invoice.getStatus() == InvoiceStatus.DRAFT) {
             throw new ValidationException("DRAFT invoices cannot be paid");
@@ -210,5 +210,14 @@ public class InvoiceServiceImpl implements InvoiceService {
         if (invoice.getStatus() != InvoiceStatus.SENT) {
             throw new ValidationException("Only SENT invoices can be marked as PAID");
         }
+    }
+
+    private String extractStringField(Map<String, Object> data, String key) {
+        Object value = data == null ? null : data.get(key);
+        String parsed = value == null ? "" : String.valueOf(value).trim();
+        if (parsed.isEmpty()) {
+            throw new ValidationException("Missing required field: " + key);
+        }
+        return parsed;
     }
 }

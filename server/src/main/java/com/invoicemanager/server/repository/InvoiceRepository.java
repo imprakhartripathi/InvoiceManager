@@ -13,4 +13,6 @@ public interface InvoiceRepository extends MongoRepository<Invoice, String> {
     Optional<Invoice> findByIdAndUserId(String id, String userId);
 
     Optional<Invoice> findByRazorpayOrderId(String razorpayOrderId);
+
+    boolean existsByUserIdAndTemplateId(String userId, String templateId);
 }

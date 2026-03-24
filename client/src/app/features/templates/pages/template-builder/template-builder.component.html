@@ -1,7 +1,7 @@
 <section class="page">
   <header>
     <p class="eyebrow">Templates</p>
-    <h2>Template Builder</h2>
+    <h2>{{ isEditMode ? 'Edit Template' : 'Template Builder' }}</h2>
     <p class="muted">Create dynamic field definitions for invoice generation.</p>
   </header>
 
@@ -66,7 +66,7 @@
       <div class="actions">
         <button mat-stroked-button type="button" routerLink="/templates">Cancel</button>
         <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Saving...' : 'Save Template' }}
+          {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Template' : 'Save Template') }}
         </button>
       </div>
 

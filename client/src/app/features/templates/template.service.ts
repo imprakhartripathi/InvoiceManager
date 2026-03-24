@@ -10,6 +10,7 @@ export interface TemplateDto {
   name: string;
   fields: TemplateField[];
   hasLineItems: boolean;
+  inUse: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,6 +23,14 @@ export class TemplateService {
 
   create(payload: { name: string; fields: TemplateField[]; hasLineItems: boolean }): Observable<TemplateDto> {
     return this.api.post<TemplateDto>('/api/templates', payload);
+  }
+
+  update(id: string, payload: { name: string; fields: TemplateField[]; hasLineItems: boolean }): Observable<TemplateDto> {
+    return this.api.put<TemplateDto>(`/api/templates/${id}`, payload);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.api.delete<void>(`/api/templates/${id}`);
   }
 
   getOne(id: string): Observable<TemplateDto> {
