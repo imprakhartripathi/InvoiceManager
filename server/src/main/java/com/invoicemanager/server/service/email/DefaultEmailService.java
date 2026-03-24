@@ -7,8 +7,8 @@ import java.net.http.HttpResponse;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,20 +47,22 @@ public class DefaultEmailService implements EmailService {
 
     @Override
     public void sendInvoice(User user, Invoice invoice, UserSettings settings, String recipient) {
-        String subject = "Invoice " + invoice.getId() + " from " + invoice.getDisplayName();
-        String body = buildInvoiceEmailBody(user, invoice);
+        String subject = InvoiceEmailTemplateUtil.buildSubject(invoice);
+        String textBody = InvoiceEmailTemplateUtil.buildTextBody(user, invoice, frontendUrl);
+        String htmlBody = InvoiceEmailTemplateUtil.buildHtmlBody(user, invoice, frontendUrl);
 
         if (StringUtils.hasText(sendGridApiKey)) {
-            sendViaSendGrid(recipient, subject, body);
+            sendViaSendGrid(recipient, subject, textBody, htmlBody);
             return;
         }
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(from);
-        message.setTo(recipient);
-        message.setSubject(subject);
-        message.setText(body);
         try {
+            var message = mailSender.createMimeMessage();
+            var helper = new MimeMessageHelper(message, "UTF-8");
+            helper.setFrom(from);
+            helper.setTo(recipient);
+            helper.setSubject(subject);
+            helper.setText(textBody, htmlBody);
             mailSender.send(message);
         } catch (Exception ex) {
             log.error("Default SMTP send failed for invoiceId={} recipient={} from={}",
@@ -68,18 +70,21 @@ public class DefaultEmailService implements EmailService {
                     recipient,
                     from,
                     ex);
-            throw ex;
+            throw new IllegalStateException("Default SMTP delivery failed", ex);
         }
     }
 
-    private void sendViaSendGrid(String recipient, String subject, String body) {
+    private void sendViaSendGrid(String recipient, String subject, String textBody, String htmlBody) {
         String payload;
         try {
             payload = objectMapper.writeValueAsString(Map.of(
                     "personalizations", new Object[] { Map.of("to", new Object[] { Map.of("email", recipient) }) },
                     "from", Map.of("email", sendGridFromEmail),
                     "subject", subject,
-                    "content", new Object[] { Map.of("type", "text/plain", "value", body) }));
+                    "content", new Object[] {
+                            Map.of("type", "text/plain", "value", textBody),
+                            Map.of("type", "text/html", "value", htmlBody)
+                    }));
         } catch (JsonProcessingException ex) {
             throw new IllegalStateException("Failed to construct SendGrid request payload", ex);
         }
@@ -101,42 +106,5 @@ public class DefaultEmailService implements EmailService {
             log.error("SendGrid send failed for recipient={} from={}", recipient, sendGridFromEmail, ex);
             throw new IllegalStateException("SendGrid delivery failed", ex);
         }
-    }
-
-    private String buildInvoiceEmailBody(User user, Invoice invoice) {
-        String customerName = extractValue(invoice, "customerName");
-        String payLink = frontendUrl.replaceAll("/+$", "") + "/pay/" + invoice.getId();
-        return String.format("""
-                Dear %s,
-
-                Please find your invoice details below:
-                Invoice ID: %s
-                Issued By: %s
-                Total Amount: %s
-                Status: %s
-
-                You can review and pay your invoice here:
-                %s
-
-                If you have questions, please reply to this email.
-
-                Regards,
-                %s
-                """,
-                customerName,
-                invoice.getId(),
-                invoice.getDisplayName(),
-                invoice.getTotal(),
-                invoice.getStatus(),
-                payLink,
-                user.getDefaultDisplayName());
-    }
-
-    private String extractValue(Invoice invoice, String key) {
-        if (invoice.getData() == null || invoice.getData().get(key) == null) {
-            return "Customer";
-        }
-        String value = String.valueOf(invoice.getData().get(key)).trim();
-        return value.isEmpty() ? "Customer" : value;
     }
 }

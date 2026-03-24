@@ -57,6 +57,11 @@ export class PayInvoiceComponent implements OnInit {
     if (!invoiceId) {
       return;
     }
+    if (this.summary()?.status === 'PAID') {
+      this.error = '';
+      this.message = 'This invoice is already paid.';
+      return;
+    }
 
     this.creatingOrder = true;
     this.paymentService.createPublicOrder(invoiceId).subscribe({

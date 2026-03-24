@@ -31,6 +31,8 @@ public class StartupEnvLogger implements ApplicationRunner {
             "app.sendgrid.api-key",
             "SENDGRID_FROM_EMAIL",
             "app.sendgrid.from-email",
+            "APP_FRONTEND_URL",
+            "app.frontend-url",
             "RAZORPAY_KEY_ID",
             "app.razorpay.key-id",
             "RAZORPAY_KEY_SECRET",

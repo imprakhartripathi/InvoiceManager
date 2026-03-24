@@ -81,7 +81,7 @@
         <button mat-stroked-button (click)="markSent(inv)" [disabled]="inv.status !== 'DRAFT'">Send</button>
         <button mat-stroked-button (click)="markPaidCash(inv)" [disabled]="inv.status !== 'SENT'">Paid Cash</button>
         <button mat-stroked-button (click)="printInvoice(inv)">Print PDF</button>
-        <button mat-stroked-button [routerLink]="['/pay', inv.id]">Public Pay Page</button>
+        <button mat-stroked-button [routerLink]="['/pay', inv.id]" [disabled]="inv.status === 'PAID'">Public Pay Page</button>
       </div>
     </mat-card>
   </div>

@@ -24,13 +24,18 @@
       </div>
     </dl>
 
-    <div class="actions">
+    <mat-card class="paid-note" *ngIf="s.status === 'PAID'">
+      <h3>Invoice Already Paid</h3>
+      <p>This payment link is no longer active because the invoice has already been settled.</p>
+    </mat-card>
+
+    <div class="actions" *ngIf="s.status !== 'PAID'">
       <button mat-flat-button color="primary" (click)="createOrder()" [disabled]="creatingOrder || s.status === 'PAID'">
         {{ creatingOrder ? 'Creating Order...' : 'Proceed to Payment' }}
       </button>
     </div>
 
-    <mat-card class="order-box" *ngIf="orderId()">
+    <mat-card class="order-box" *ngIf="orderId() && s.status !== 'PAID'">
       <h3>Razorpay Order Ready</h3>
       <p><strong>Order ID:</strong> {{ orderId() }}</p>
       <p *ngIf="orderAmount() !== null"><strong>Amount:</strong> {{ orderAmount() }} {{ orderCurrency() }}</p>

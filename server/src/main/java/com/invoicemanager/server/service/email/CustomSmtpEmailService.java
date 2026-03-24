@@ -1,7 +1,7 @@
 package com.invoicemanager.server.service.email;
 
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -44,12 +44,16 @@ public class CustomSmtpEmailService implements EmailService {
         props.put("mail.smtp.timeout", "10000");
         props.put("mail.smtp.writetimeout", "10000");
 
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(settings.getSmtp().getEmail());
-        message.setTo(recipient);
-        message.setSubject("Invoice " + invoice.getId() + " from " + invoice.getDisplayName());
-        message.setText(buildInvoiceEmailBody(user, invoice));
+        String subject = InvoiceEmailTemplateUtil.buildSubject(invoice);
+        String textBody = InvoiceEmailTemplateUtil.buildTextBody(user, invoice, frontendUrl);
+        String htmlBody = InvoiceEmailTemplateUtil.buildHtmlBody(user, invoice, frontendUrl);
         try {
+            var message = sender.createMimeMessage();
+            var helper = new MimeMessageHelper(message, "UTF-8");
+            helper.setFrom(settings.getSmtp().getEmail());
+            helper.setTo(recipient);
+            helper.setSubject(subject);
+            helper.setText(textBody, htmlBody);
             sender.send(message);
         } catch (Exception ex) {
             log.error("Custom SMTP send failed for invoiceId={} recipient={} smtpHost={} smtpEmail={}",
@@ -58,44 +62,7 @@ public class CustomSmtpEmailService implements EmailService {
                     settings.getSmtp().getHost(),
                     settings.getSmtp().getEmail(),
                     ex);
-            throw ex;
+            throw new IllegalStateException("Custom SMTP delivery failed", ex);
         }
-    }
-
-    private String buildInvoiceEmailBody(User user, Invoice invoice) {
-        String customerName = extractValue(invoice, "customerName");
-        String payLink = frontendUrl.replaceAll("/+$", "") + "/pay/" + invoice.getId();
-        return String.format("""
-                Dear %s,
-
-                Please find your invoice details below:
-                Invoice ID: %s
-                Issued By: %s
-                Total Amount: %s
-                Status: %s
-
-                You can review and pay your invoice here:
-                %s
-
-                If you have questions, please reply to this email.
-
-                Regards,
-                %s
-                """,
-                customerName,
-                invoice.getId(),
-                invoice.getDisplayName(),
-                invoice.getTotal(),
-                invoice.getStatus(),
-                payLink,
-                user.getDefaultDisplayName());
-    }
-
-    private String extractValue(Invoice invoice, String key) {
-        if (invoice.getData() == null || invoice.getData().get(key) == null) {
-            return "Customer";
-        }
-        String value = String.valueOf(invoice.getData().get(key)).trim();
-        return value.isEmpty() ? "Customer" : value;
     }
 }
