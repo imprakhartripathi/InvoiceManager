@@ -132,7 +132,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         } catch (Exception ex) {
             log.error("Invoice send email failed userId={} invoiceId={} recipient={}",
                     userId, invoiceId, recipient, ex);
-            throw new ValidationException("Unable to send invoice email. Check SMTP settings and recipient email.");
+            throw new ValidationException("Unable to send invoice email: " + rootCauseMessage(ex));
         }
         return toResponse(invoiceRepository.save(invoice));
     }
@@ -224,5 +224,14 @@ public class InvoiceServiceImpl implements InvoiceService {
             throw new ValidationException("Missing required field: " + key);
         }
         return parsed;
+    }
+
+    private String rootCauseMessage(Throwable throwable) {
+        Throwable current = throwable;
+        while (current.getCause() != null) {
+            current = current.getCause();
+        }
+        String message = current.getMessage();
+        return (message == null || message.isBlank()) ? current.getClass().getSimpleName() : message;
     }
 }

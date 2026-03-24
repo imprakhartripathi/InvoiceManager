@@ -68,9 +68,9 @@ export class PayInvoiceComponent implements OnInit {
         this.orderCurrency.set(order.currency);
         this.openRazorpayCheckout(order);
       },
-      error: () => {
+      error: (err) => {
         this.creatingOrder = false;
-        this.error = 'Unable to create payment order.';
+        this.error = err?.error?.message ?? 'Unable to create payment order.';
       }
     });
   }
