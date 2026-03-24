@@ -7,11 +7,14 @@ export interface InvoiceDto {
   id: string;
   userId: string;
   templateId: string;
+  displayName: string;
   data: Record<string, unknown>;
   lineItems: Record<string, unknown>[];
   total: number;
   status: 'DRAFT' | 'SENT' | 'PAID';
   razorpayOrderId: string | null;
+  paidVia: 'CASH' | 'RAZORPAY' | null;
+  paidBy: 'OWNER' | 'CLIENT' | null;
   createdAt: string;
   paidAt: string | null;
 }
@@ -26,10 +29,31 @@ export class InvoiceService {
 
   create(payload: {
     templateId: string;
+    displayName: string;
     data: Record<string, unknown>;
     lineItems: Record<string, unknown>[];
   }): Observable<InvoiceDto> {
     return this.api.post<InvoiceDto>('/api/invoices', payload);
+  }
+
+  update(invoiceId: string, payload: { displayName: string; data: Record<string, unknown>; lineItems: Record<string, unknown>[] }) {
+    return this.api.put<InvoiceDto>(`/api/invoices/${invoiceId}`, payload);
+  }
+
+  remove(invoiceId: string) {
+    return this.api.delete<void>(`/api/invoices/${invoiceId}`);
+  }
+
+  getOne(invoiceId: string): Observable<InvoiceDto> {
+    return this.api.get<InvoiceDto>(`/api/invoices/${invoiceId}`);
+  }
+
+  markSent(invoiceId: string) {
+    return this.api.post<InvoiceDto>(`/api/invoices/${invoiceId}/send`, {});
+  }
+
+  markPaidCash(invoiceId: string) {
+    return this.api.post<InvoiceDto>(`/api/invoices/${invoiceId}/pay/cash`, {});
   }
 
   getPublicSummary(invoiceId: string) {

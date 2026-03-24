@@ -24,10 +24,13 @@ import lombok.NoArgsConstructor;
 public class Invoice extends BaseDocument {
     private String userId;
     private String templateId;
+    private String displayName;
     private Map<String, Object> data;
     private List<Map<String, Object>> lineItems;
     private BigDecimal total;
     private InvoiceStatus status;
     private String razorpayOrderId;
+    private PaidVia paidVia;
+    private PaidBy paidBy;
     private Instant paidAt;
 }

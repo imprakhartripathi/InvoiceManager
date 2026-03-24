@@ -1,7 +1,7 @@
 <section class="page">
   <header>
     <p class="eyebrow">Invoices</p>
-    <h2>Create Invoice</h2>
+    <h2>{{ isEditMode() ? 'Edit Invoice' : 'Create Invoice' }}</h2>
     <p class="muted">Generate invoices from your dynamic templates with validated data.</p>
   </header>
 
@@ -23,6 +23,20 @@
     </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()" class="invoice-form" *ngIf="selectedTemplate()">
+      <div class="template-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Display Name On Invoice</mat-label>
+          <mat-select formControlName="displayName">
+            <mat-option *ngFor="let name of displayNameOptions()" [value]="name">{{ name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Or Add Custom Display Name</mat-label>
+          <input matInput formControlName="customDisplayName" placeholder="Optional custom name for this invoice" />
+        </mat-form-field>
+      </div>
+
       <section class="form-section">
         <h3>Invoice Data</h3>
         <div class="fields-grid">
@@ -47,7 +61,7 @@
       <div class="actions">
         <button mat-stroked-button type="button" routerLink="/invoices">Cancel</button>
         <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
-          {{ isSubmitting ? 'Saving...' : 'Save Invoice' }}
+          {{ isSubmitting ? 'Saving...' : (isEditMode() ? 'Update Invoice' : 'Save Invoice') }}
         </button>
       </div>
 

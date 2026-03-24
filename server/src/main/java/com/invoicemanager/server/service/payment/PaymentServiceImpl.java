@@ -17,7 +17,9 @@ import com.invoicemanager.server.dto.payment.CreateOrderResponse;
 import com.invoicemanager.server.dto.payment.RazorpayWebhookPayload;
 import com.invoicemanager.server.exception.PaymentVerificationException;
 import com.invoicemanager.server.exception.ResourceNotFoundException;
+import com.invoicemanager.server.exception.ValidationException;
 import com.invoicemanager.server.model.Invoice;
+import com.invoicemanager.server.model.InvoiceStatus;
 import com.invoicemanager.server.repository.InvoiceRepository;
 import com.invoicemanager.server.service.invoice.InvoiceService;
 
@@ -47,6 +49,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private CreateOrderResponse createAndAttachOrder(Invoice invoice, String ownerUserId) {
+        if (invoice.getStatus() != InvoiceStatus.SENT) {
+            throw new ValidationException("Only SENT invoices can create payment orders");
+        }
         long amountInPaise = invoice.getTotal()
                 .multiply(BigDecimal.valueOf(100))
                 .setScale(0, RoundingMode.HALF_UP)
@@ -79,7 +84,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found for order id"));
 
         if ("captured".equalsIgnoreCase(payment.status())) {
-            invoiceService.markAsPaid(invoice.getId(), payment.id());
+            invoiceService.markAsPaidViaRazorpay(invoice.getId(), payment.id());
         }
     }
 

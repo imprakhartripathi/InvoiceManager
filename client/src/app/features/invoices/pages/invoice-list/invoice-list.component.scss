@@ -35,6 +35,21 @@
   gap: 0.6rem;
 }
 
+.filters-card {
+  border-radius: 0.9rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.filters-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .invoice-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -59,6 +74,21 @@
     font-size: 0.96rem;
     color: #0f172a;
     word-break: break-all;
+  }
+}
+
+.top-fields {
+  display: grid;
+  gap: 0.2rem;
+  background: #f8fbff;
+  border: 1px solid #d9e4f2;
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #1e293b;
   }
 }
 
@@ -106,6 +136,8 @@ dl {
 .card-actions {
   display: flex;
   justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .empty-state {
@@ -133,4 +165,10 @@ dl {
 .error {
   margin: 0;
   color: #b91c1c;
+}
+
+@media (max-width: 900px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
 }

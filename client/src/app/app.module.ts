@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { App } from './app';
 import { CoreModule } from './core/core.module';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { HttpLoadingInterceptor } from './core/interceptors/http-loading.interceptor';
 import { HttpLoggingInterceptor } from './core/interceptors/http-logging.interceptor';
 import { GlobalErrorHandler } from './core/error/global-error-handler';
 import { SharedModule } from './shared/shared.module';
@@ -17,6 +18,11 @@ import { SharedModule } from './shared/shared.module';
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpLoadingInterceptor,
       multi: true
     },
     {

@@ -28,7 +28,7 @@ export class AuthService {
     );
   }
 
-  signup(payload: { email: string; password: string }) {
+  signup(payload: { email: string; fullName: string; businessName: string; password: string }) {
     return this.api.post<AuthResponse>('/auth/signup', payload);
   }
 

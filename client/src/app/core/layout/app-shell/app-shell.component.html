@@ -46,6 +46,7 @@
         New Invoice
       </button>
     </mat-toolbar>
+    <mat-progress-bar mode="indeterminate" class="topbar-loader" *ngIf="isPageLoading()"></mat-progress-bar>
 
     <main class="page-content">
       <router-outlet></router-outlet>

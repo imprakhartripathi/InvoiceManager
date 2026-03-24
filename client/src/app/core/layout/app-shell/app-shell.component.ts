@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { filter, map, takeUntil } from 'rxjs/operators';
 
 import { AuthService } from '../../auth/auth.service';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   standalone: false,
@@ -15,6 +16,7 @@ import { AuthService } from '../../auth/auth.service';
 export class AppShellComponent implements OnInit, OnDestroy {
   readonly isMobile = signal(false);
   readonly pageTitle = signal('Dashboard');
+  readonly isPageLoading;
 
   readonly navItems = [
     { label: 'Dashboard', icon: 'space_dashboard', route: '/dashboard' },
@@ -28,8 +30,11 @@ export class AppShellComponent implements OnInit, OnDestroy {
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router,
-    private readonly breakpointObserver: BreakpointObserver
-  ) {}
+    private readonly breakpointObserver: BreakpointObserver,
+    private readonly loadingService: LoadingService
+  ) {
+    this.isPageLoading = this.loadingService.isLoading;
+  }
 
   ngOnInit(): void {
     this.breakpointObserver

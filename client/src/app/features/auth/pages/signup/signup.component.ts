@@ -26,6 +26,8 @@ export class SignupComponent {
     private readonly logger: LoggerService
   ) {
     this.form = this.fb.group({
+      fullName: ['', [Validators.required]],
+      businessName: [''],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
@@ -37,9 +39,12 @@ export class SignupComponent {
 
     if (this.form.invalid) {
       const emailControl = this.form.controls.email;
+      const fullNameControl = this.form.controls.fullName;
       const passwordControl = this.form.controls.password;
 
-      if (emailControl.invalid) {
+      if (fullNameControl.invalid) {
+        this.error = 'Please enter your full name.';
+      } else if (emailControl.invalid) {
         this.error = 'Please enter a valid email address.';
       } else if (passwordControl.invalid) {
         this.error = 'Password must be at least 8 characters.';
@@ -48,6 +53,7 @@ export class SignupComponent {
       }
 
       this.logger.warn('Signup blocked due to invalid form', {
+        fullNameInvalid: fullNameControl.invalid,
         emailInvalid: emailControl.invalid,
         passwordInvalid: passwordControl.invalid
       });
@@ -55,7 +61,9 @@ export class SignupComponent {
     }
 
     this.isSubmitting = true;
-    this.authService.signup(this.form.getRawValue() as { email: string; password: string }).subscribe({
+    this.authService
+      .signup(this.form.getRawValue() as { fullName: string; businessName: string; email: string; password: string })
+      .subscribe({
       next: () => {
         this.isSubmitting = false;
         this.logger.info('Signup success. Redirecting to login.');

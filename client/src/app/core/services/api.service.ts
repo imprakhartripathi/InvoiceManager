@@ -22,6 +22,10 @@ export class ApiService {
     return this.http.put<T>(this.buildUrl(path), body);
   }
 
+  delete<T>(path: string): Observable<T> {
+    return this.http.delete<T>(this.buildUrl(path));
+  }
+
   private buildUrl(path: string): string {
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     return `${this.base}${normalizedPath}`;

@@ -1,5 +1,7 @@
 package com.invoicemanager.server.model;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -22,4 +24,8 @@ public class User extends BaseDocument {
     private String email;
 
     private String password;
+    private String fullName;
+    private String businessName;
+    private String defaultDisplayName;
+    private List<String> savedCustomDisplayNames;
 }

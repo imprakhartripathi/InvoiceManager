@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Invoice Details</h2>
+<mat-dialog-content>
+  <p><strong>Template:</strong> {{ data.templateName }}</p>
+  <p><strong>Invoice ID:</strong> {{ data.invoice.id }}</p>
+  <p><strong>Display Name:</strong> {{ data.invoice.displayName }}</p>
+  <p><strong>Status:</strong> {{ data.invoice.status }}</p>
+  <p><strong>Total:</strong> {{ data.invoice.total | currency : 'INR' : 'symbol' : '1.0-2' }}</p>
+  <p><strong>Created:</strong> {{ data.invoice.createdAt | date : 'medium' }}</p>
+  <p *ngIf="data.invoice.paidAt"><strong>Paid At:</strong> {{ data.invoice.paidAt | date : 'medium' }}</p>
+  <p *ngIf="data.invoice.paidVia"><strong>Paid Via:</strong> {{ data.invoice.paidVia }}</p>
+  <p *ngIf="data.invoice.paidBy"><strong>Paid By:</strong> {{ data.invoice.paidBy }}</p>
+
+  <h3>Top Fields</h3>
+  <ul>
+    <li *ngFor="let field of data.previewFields">{{ field }}</li>
+  </ul>
+
+  <h3>All Data</h3>
+  <pre>{{ data.invoice.data | json }}</pre>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-flat-button mat-dialog-close color="primary">Close</button>
+</mat-dialog-actions>

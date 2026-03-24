@@ -1,6 +1,7 @@
 package com.invoicemanager.server.service.auth;
 
 import java.util.Locale;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse signup(SignupRequest request) {
         String normalizedEmail = request.email().trim().toLowerCase(Locale.ROOT);
+        String normalizedFullName = request.fullName().trim();
+        String normalizedBusinessName = request.businessName() == null ? "" : request.businessName().trim();
+        String defaultDisplayName = normalizedBusinessName.isBlank() ? normalizedFullName : normalizedBusinessName;
         log.info("Signup attempt for email={}", normalizedEmail);
 
         if (userRepository.existsByEmail(normalizedEmail)) {
@@ -40,6 +44,10 @@ public class AuthServiceImpl implements AuthService {
         User user = User.builder()
                 .email(normalizedEmail)
                 .password(passwordEncoder.encode(request.password()))
+                .fullName(normalizedFullName)
+                .businessName(normalizedBusinessName)
+                .defaultDisplayName(defaultDisplayName)
+                .savedCustomDisplayNames(new ArrayList<>())
                 .build();
 
         User saved = userRepository.save(user);

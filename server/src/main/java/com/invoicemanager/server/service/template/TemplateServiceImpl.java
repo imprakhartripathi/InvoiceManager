@@ -58,14 +58,31 @@ public class TemplateServiceImpl implements TemplateService {
         }
 
         Set<String> keys = new HashSet<>();
+        boolean hasRequiredCustomerName = false;
+        boolean hasRequiredCustomerEmail = false;
         for (TemplateFieldDto field : fields) {
             String normalizedType = field.type().toLowerCase(Locale.ROOT);
+            String normalizedKey = field.key().trim().toLowerCase(Locale.ROOT);
             if (!ALLOWED_TYPES.contains(normalizedType)) {
                 throw new ValidationException("Unsupported field type: " + field.type());
             }
             if (!keys.add(field.key())) {
                 throw new ValidationException("Duplicate field key: " + field.key());
             }
+
+            if ("customername".equals(normalizedKey) && field.required()) {
+                hasRequiredCustomerName = true;
+            }
+            if ("customeremail".equals(normalizedKey) && field.required()) {
+                hasRequiredCustomerEmail = true;
+            }
+        }
+
+        if (!hasRequiredCustomerName) {
+            throw new ValidationException("Template must include required field key: customerName");
+        }
+        if (!hasRequiredCustomerEmail) {
+            throw new ValidationException("Template must include required field key: customerEmail");
         }
     }
 

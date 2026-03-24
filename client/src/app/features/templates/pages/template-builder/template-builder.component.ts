@@ -31,6 +31,13 @@ export class TemplateBuilderComponent {
           type: ['text', Validators.required],
           required: [true],
           defaultValue: ['']
+        }),
+        this.fb.group({
+          key: ['customerEmail', Validators.required],
+          label: ['Customer Email', Validators.required],
+          type: ['text', Validators.required],
+          required: [true],
+          defaultValue: ['']
         })
       ])
     });

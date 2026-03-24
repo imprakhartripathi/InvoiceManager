@@ -11,15 +11,52 @@
     </div>
   </header>
 
+  <mat-card class="filters-card">
+    <div class="filters-grid">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [(value)]="statusFilter" (selectionChange)="applyFilters()">
+          <mat-option value="">All</mat-option>
+          <mat-option value="DRAFT">DRAFT</mat-option>
+          <mat-option value="SENT">SENT</mat-option>
+          <mat-option value="PAID">PAID</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Template</mat-label>
+        <mat-select [(value)]="templateFilter" (selectionChange)="applyFilters()">
+          <mat-option value="">All</mat-option>
+          <mat-option *ngFor="let t of templates()" [value]="t.id">{{ t.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Date Created</mat-label>
+        <input matInput type="date" [(ngModel)]="dateFilter" (change)="applyFilters()" />
+      </mat-form-field>
+    </div>
+    <div class="filters-actions">
+      <button mat-stroked-button (click)="resetFilters()">Reset Filters</button>
+    </div>
+  </mat-card>
+
   <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
   <p class="error" *ngIf="error">{{ error }}</p>
 
-  <div class="invoice-grid" *ngIf="invoices().length; else emptyState">
-    <mat-card class="invoice-card" *ngFor="let inv of invoices()">
+  <div class="invoice-grid" *ngIf="filteredInvoices().length; else emptyState">
+    <mat-card class="invoice-card" *ngFor="let inv of filteredInvoices()">
       <div class="card-head">
-        <h3>{{ inv.id }}</h3>
+        <h3>{{ templateName(inv.templateId) }}</h3>
         <mat-chip [ngClass]="inv.status.toLowerCase()">{{ inv.status }}</mat-chip>
       </div>
+
+      <div class="top-fields">
+        <p *ngFor="let field of topFields(inv)">{{ field }}</p>
+      </div>
+
+      <p><strong>Invoice ID:</strong> {{ inv.id }}</p>
+      <p><strong>Display Name:</strong> {{ inv.displayName }}</p>
 
       <dl>
         <div>
@@ -34,9 +71,19 @@
           <dt>Paid At</dt>
           <dd>{{ inv.paidAt | date : 'medium' }}</dd>
         </div>
+        <div *ngIf="inv.paidVia">
+          <dt>Paid Via</dt>
+          <dd>{{ inv.paidVia }}</dd>
+        </div>
       </dl>
 
       <div class="card-actions">
+        <button mat-stroked-button (click)="openDetails(inv)">Details</button>
+        <button mat-stroked-button [routerLink]="['/invoices/edit', inv.id]" [disabled]="inv.status === 'PAID'">Edit</button>
+        <button mat-stroked-button color="warn" (click)="deleteInvoice(inv)" [disabled]="inv.status === 'PAID'">Delete</button>
+        <button mat-stroked-button (click)="markSent(inv)" [disabled]="inv.status !== 'DRAFT'">Mark Sent</button>
+        <button mat-stroked-button (click)="markPaidCash(inv)" [disabled]="inv.status !== 'SENT'">Paid Cash</button>
+        <button mat-stroked-button (click)="printInvoice(inv)">Print PDF</button>
         <button mat-stroked-button [routerLink]="['/pay', inv.id]">Public Pay Page</button>
       </div>
     </mat-card>

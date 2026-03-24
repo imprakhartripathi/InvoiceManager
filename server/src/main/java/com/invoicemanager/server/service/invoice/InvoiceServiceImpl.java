@@ -10,9 +10,12 @@ import org.springframework.stereotype.Service;
 import com.invoicemanager.server.dto.invoice.CreateInvoiceRequest;
 import com.invoicemanager.server.dto.invoice.InvoiceResponse;
 import com.invoicemanager.server.dto.invoice.InvoiceSummaryResponse;
+import com.invoicemanager.server.dto.invoice.UpdateInvoiceRequest;
 import com.invoicemanager.server.exception.ResourceNotFoundException;
 import com.invoicemanager.server.exception.ValidationException;
 import com.invoicemanager.server.model.Invoice;
+import com.invoicemanager.server.model.PaidBy;
+import com.invoicemanager.server.model.PaidVia;
 import com.invoicemanager.server.model.InvoiceStatus;
 import com.invoicemanager.server.model.Template;
 import com.invoicemanager.server.model.TemplateField;
@@ -43,6 +46,7 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = Invoice.builder()
                 .userId(userId)
                 .templateId(template.getId())
+                .displayName(request.displayName().trim())
                 .data(request.data())
                 .lineItems(template.isHasLineItems() ? request.lineItems() : List.of())
                 .total(invoiceCalculationUtil.calculateTotal(request.lineItems()))
@@ -55,6 +59,34 @@ public class InvoiceServiceImpl implements InvoiceService {
     @Override
     public List<InvoiceResponse> getMyInvoices(String userId) {
         return invoiceRepository.findByUserId(userId).stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public InvoiceResponse updateInvoice(String userId, String invoiceId, UpdateInvoiceRequest request) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
+        ownershipValidator.ensureOwner(userId, invoice.getUserId());
+        ensureMutable(invoice);
+
+        Template template = templateRepository.findById(invoice.getTemplateId())
+                .orElseThrow(() -> new ResourceNotFoundException("Template not found"));
+        validateTemplateData(template, request.data());
+
+        invoice.setDisplayName(request.displayName().trim());
+        invoice.setData(request.data());
+        invoice.setLineItems(template.isHasLineItems() ? request.lineItems() : List.of());
+        invoice.setTotal(invoiceCalculationUtil.calculateTotal(request.lineItems()));
+
+        return toResponse(invoiceRepository.save(invoice));
+    }
+
+    @Override
+    public void deleteInvoice(String userId, String invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
+        ownershipValidator.ensureOwner(userId, invoice.getUserId());
+        ensureMutable(invoice);
+        invoiceRepository.delete(invoice);
     }
 
     @Override
@@ -81,10 +113,42 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public void markAsPaid(String invoiceId, String razorpayPaymentId) {
+    public InvoiceResponse markAsSent(String userId, String invoiceId) {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
+        ownershipValidator.ensureOwner(userId, invoice.getUserId());
+
+        if (invoice.getStatus() != InvoiceStatus.DRAFT) {
+            throw new ValidationException("Only DRAFT invoices can be marked as SENT");
+        }
+
+        invoice.setStatus(InvoiceStatus.SENT);
+        return toResponse(invoiceRepository.save(invoice));
+    }
+
+    @Override
+    public InvoiceResponse markAsPaidCash(String userId, String invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
+        ownershipValidator.ensureOwner(userId, invoice.getUserId());
+        ensurePayable(invoice);
+
         invoice.setStatus(InvoiceStatus.PAID);
+        invoice.setPaidVia(PaidVia.CASH);
+        invoice.setPaidBy(PaidBy.OWNER);
+        invoice.setPaidAt(Instant.now());
+        return toResponse(invoiceRepository.save(invoice));
+    }
+
+    @Override
+    public void markAsPaidViaRazorpay(String invoiceId, String razorpayPaymentId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
+        ensurePayable(invoice);
+
+        invoice.setStatus(InvoiceStatus.PAID);
+        invoice.setPaidVia(PaidVia.RAZORPAY);
+        invoice.setPaidBy(PaidBy.CLIENT);
         invoice.setPaidAt(Instant.now());
         if (invoice.getData() != null) {
             invoice.getData().put("razorpayPaymentId", razorpayPaymentId);
@@ -97,6 +161,9 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Invoice not found"));
         ownershipValidator.ensureOwner(userId, invoice.getUserId());
+        if (invoice.getStatus() != InvoiceStatus.SENT) {
+            throw new ValidationException("Only SENT invoices can create payment orders");
+        }
         invoice.setRazorpayOrderId(razorpayOrderId);
         return toResponse(invoiceRepository.save(invoice));
     }
@@ -115,12 +182,33 @@ public class InvoiceServiceImpl implements InvoiceService {
                 invoice.getId(),
                 invoice.getUserId(),
                 invoice.getTemplateId(),
+                invoice.getDisplayName(),
                 invoice.getData(),
                 invoice.getLineItems(),
                 invoice.getTotal(),
                 invoice.getStatus().name(),
                 invoice.getRazorpayOrderId(),
+                invoice.getPaidVia() == null ? null : invoice.getPaidVia().name(),
+                invoice.getPaidBy() == null ? null : invoice.getPaidBy().name(),
                 invoice.getCreatedAt(),
                 invoice.getPaidAt());
+    }
+
+    private void ensureMutable(Invoice invoice) {
+        if (invoice.getStatus() == InvoiceStatus.PAID) {
+            throw new ValidationException("PAID invoices are immutable");
+        }
+    }
+
+    private void ensurePayable(Invoice invoice) {
+        if (invoice.getStatus() == InvoiceStatus.DRAFT) {
+            throw new ValidationException("DRAFT invoices cannot be paid");
+        }
+        if (invoice.getStatus() == InvoiceStatus.PAID) {
+            throw new ValidationException("Invoice is already PAID");
+        }
+        if (invoice.getStatus() != InvoiceStatus.SENT) {
+            throw new ValidationException("Only SENT invoices can be marked as PAID");
+        }
     }
 }

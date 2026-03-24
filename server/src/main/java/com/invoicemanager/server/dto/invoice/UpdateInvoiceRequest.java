@@ -6,8 +6,7 @@ import java.util.Map;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record CreateInvoiceRequest(
-        @NotBlank String templateId,
+public record UpdateInvoiceRequest(
         @NotBlank String displayName,
         @NotNull Map<String, Object> data,
         List<Map<String, Object>> lineItems) {

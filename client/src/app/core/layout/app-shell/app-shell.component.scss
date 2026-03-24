@@ -112,6 +112,11 @@
   overflow: auto;
 }
 
+.topbar-loader {
+  margin: 0;
+  border-radius: 0;
+}
+
 .page-content > * {
   width: min(1240px, 100%);
   margin: 0 auto;
