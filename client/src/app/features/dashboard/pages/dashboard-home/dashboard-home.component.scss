@@ -1,0 +1,83 @@
+.dashboard {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.welcome-card {
+  border-radius: 1.05rem;
+  background: linear-gradient(130deg, #0f172a 0%, #164e63 70%);
+  color: #f1f7ff;
+  padding: 1.35rem;
+
+  h2 {
+    margin: 0.25rem 0 0.45rem;
+    font-size: 1.55rem;
+  }
+
+  p {
+    margin: 0;
+    color: #164e63;
+  }
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #bae6fd;
+}
+
+.cta-row {
+  margin-top: 1.15rem;
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+
+  .mat-mdc-button-base {
+    border-radius: 10px;
+    min-height: 40px;
+  }
+
+  .mat-mdc-outlined-button {
+    border-color: rgba(255, 255, 255, 0.45);
+    color: #e8f1ff;
+  }
+
+  .mat-mdc-unelevated-button {
+    background: #e6f1ff;
+    color: #063b7a;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.9rem;
+}
+
+.stat {
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+
+  p {
+    margin: 0;
+    color: #4b5f79;
+    font-weight: 600;
+  }
+
+  h3 {
+    margin: 0.55rem 0 0;
+    font-size: 1.6rem;
+    color: #0f172a;
+  }
+}
+
+.quick-links {
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+
+  h3 {
+    margin: 0 0 0.55rem;
+    color: #0f172a;
+  }
+}

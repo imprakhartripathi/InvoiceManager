@@ -1,0 +1,58 @@
+<section class="page">
+  <header>
+    <p class="eyebrow">Invoices</p>
+    <h2>Create Invoice</h2>
+    <p class="muted">Generate invoices from your dynamic templates with validated data.</p>
+  </header>
+
+  <mat-card class="create-card">
+    <mat-progress-bar mode="indeterminate" *ngIf="loadingTemplates()"></mat-progress-bar>
+
+    <div class="template-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Template</mat-label>
+        <mat-select [value]="selectedTemplate()?.id ?? ''" (selectionChange)="onTemplateChange($event.value)">
+          <mat-option *ngFor="let tpl of templates()" [value]="tpl.id">{{ tpl.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-chip-set *ngIf="selectedTemplate()">
+        <mat-chip>{{ selectedTemplate()?.fields?.length }} Fields</mat-chip>
+        <mat-chip *ngIf="selectedTemplate()?.hasLineItems">Line Items</mat-chip>
+      </mat-chip-set>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="invoice-form" *ngIf="selectedTemplate()">
+      <section class="form-section">
+        <h3>Invoice Data</h3>
+        <div class="fields-grid">
+          <app-dynamic-field
+            *ngFor="let field of selectedTemplate()?.fields ?? []"
+            [field]="field"
+            [form]="dataGroup"
+          ></app-dynamic-field>
+        </div>
+      </section>
+
+      <section class="form-section" *ngIf="selectedTemplate()?.hasLineItems">
+        <div class="section-head">
+          <h3>Line Items</h3>
+          <button mat-stroked-button type="button" (click)="addLineItem()">Add Line Item</button>
+        </div>
+
+        <app-line-items-editor [lineItems]="lineItems"></app-line-items-editor>
+        <p class="total">Estimated total: {{ calculatedTotal() | currency : 'INR' : 'symbol' : '1.0-2' }}</p>
+      </section>
+
+      <div class="actions">
+        <button mat-stroked-button type="button" routerLink="/invoices">Cancel</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Saving...' : 'Save Invoice' }}
+        </button>
+      </div>
+
+      <p class="ok" *ngIf="message">{{ message }}</p>
+      <p class="error" *ngIf="error">{{ error }}</p>
+    </form>
+  </mat-card>
+</section>

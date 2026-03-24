@@ -1,0 +1,45 @@
+<section class="page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Templates</p>
+      <h2>Invoice Templates</h2>
+      <p class="muted">Define reusable field structures per invoice type.</p>
+    </div>
+    <div class="head-actions">
+      <button mat-stroked-button (click)="refresh()">Refresh</button>
+      <button mat-flat-button color="primary" routerLink="/templates/new">New Template</button>
+    </div>
+  </header>
+
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <div class="template-grid" *ngIf="templates().length; else emptyState">
+    <mat-card class="template-card" *ngFor="let t of templates()">
+      <div class="card-head">
+        <h3>{{ t.name }}</h3>
+        <mat-chip-set>
+          <mat-chip>{{ t.fields.length }} Fields</mat-chip>
+          <mat-chip *ngIf="t.hasLineItems">Line Items</mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <div class="field-preview">
+        <span *ngFor="let f of t.fields | slice : 0 : 4">{{ f.label }}</span>
+      </div>
+
+      <div class="card-actions">
+        <button mat-stroked-button [routerLink]="['/invoices/new', t.id]">Create Invoice</button>
+      </div>
+    </mat-card>
+  </div>
+
+  <ng-template #emptyState>
+    <mat-card class="empty-state">
+      <mat-icon>view_quilt</mat-icon>
+      <h3>No templates yet</h3>
+      <p>Create your first dynamic template to generate invoices faster.</p>
+      <button mat-flat-button color="primary" routerLink="/templates/new">Create First Template</button>
+    </mat-card>
+  </ng-template>
+</section>

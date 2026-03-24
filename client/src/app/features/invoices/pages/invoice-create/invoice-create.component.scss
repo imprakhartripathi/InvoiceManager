@@ -1,0 +1,95 @@
+.page {
+  display: grid;
+  gap: 1.2rem;
+}
+
+header {
+  h2 {
+    margin: 0.2rem 0;
+    color: #0f172a;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.muted {
+  margin: 0;
+  color: #64748b;
+}
+
+.create-card {
+  border-radius: 1rem;
+  display: grid;
+  gap: 1.15rem;
+  padding: 1.05rem 1.1rem;
+}
+
+.template-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.invoice-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-section {
+  border: 1px solid #d1deeb;
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: #fbfdff;
+
+  h3 {
+    margin: 0 0 0.8rem;
+    color: #0f172a;
+    font-size: 1.1rem;
+  }
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: center;
+  margin-bottom: 0.7rem;
+}
+
+.total {
+  margin: 0.75rem 0 0;
+  text-align: right;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  margin-top: 0.35rem;
+}
+
+.ok {
+  margin: 0;
+  color: #166534;
+}
+
+.error {
+  margin: 0;
+  color: #b91c1c;
+}

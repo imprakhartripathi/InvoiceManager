@@ -1,0 +1,102 @@
+.page {
+  display: grid;
+  gap: 1.2rem;
+}
+
+header {
+  h2 {
+    margin: 0.2rem 0;
+    color: #0f172a;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.muted {
+  margin: 0;
+  color: #64748b;
+}
+
+.builder-card {
+  border-radius: 1rem;
+  padding: 1.05rem 1.1rem;
+}
+
+form {
+  display: grid;
+  gap: 1.15rem;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+
+  h3 {
+    margin: 0;
+    color: #0f172a;
+  }
+}
+
+.field-grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.field-row {
+  border-radius: 0.85rem;
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.9rem;
+  background: #fcfdff;
+  border: 1px solid #dce8f3;
+}
+
+.row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h4 {
+    margin: 0;
+    color: #0f172a;
+  }
+}
+
+.row-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+
+.error {
+  margin: 0;
+  color: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .layout-grid,
+  .row-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,7 @@
+<div class="field" [formGroup]="form">
+  <mat-form-field appearance="outline">
+    <mat-label>{{ field.label }}</mat-label>
+    <input matInput [id]="field.key" [type]="field.type" [formControlName]="field.key" />
+    <mat-hint *ngIf="field.required">Required</mat-hint>
+  </mat-form-field>
+</div>

@@ -1,0 +1,53 @@
+<section class="page">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">Invoices</p>
+      <h2>Invoice Operations</h2>
+      <p class="muted">Monitor invoice states and share public payment links.</p>
+    </div>
+    <div class="head-actions">
+      <button mat-stroked-button (click)="loadInvoices()">Refresh</button>
+      <button mat-flat-button color="primary" routerLink="/invoices/new">Create Invoice</button>
+    </div>
+  </header>
+
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+  <p class="error" *ngIf="error">{{ error }}</p>
+
+  <div class="invoice-grid" *ngIf="invoices().length; else emptyState">
+    <mat-card class="invoice-card" *ngFor="let inv of invoices()">
+      <div class="card-head">
+        <h3>{{ inv.id }}</h3>
+        <mat-chip [ngClass]="inv.status.toLowerCase()">{{ inv.status }}</mat-chip>
+      </div>
+
+      <dl>
+        <div>
+          <dt>Total</dt>
+          <dd>{{ inv.total | currency : 'INR' : 'symbol' : '1.0-2' }}</dd>
+        </div>
+        <div>
+          <dt>Created</dt>
+          <dd>{{ inv.createdAt | date : 'medium' }}</dd>
+        </div>
+        <div *ngIf="inv.paidAt">
+          <dt>Paid At</dt>
+          <dd>{{ inv.paidAt | date : 'medium' }}</dd>
+        </div>
+      </dl>
+
+      <div class="card-actions">
+        <button mat-stroked-button [routerLink]="['/pay', inv.id]">Public Pay Page</button>
+      </div>
+    </mat-card>
+  </div>
+
+  <ng-template #emptyState>
+    <mat-card class="empty-state">
+      <mat-icon>receipt_long</mat-icon>
+      <h3>No invoices yet</h3>
+      <p>Create an invoice from a template to begin billing.</p>
+      <button mat-flat-button color="primary" routerLink="/invoices/new">Create First Invoice</button>
+    </mat-card>
+  </ng-template>
+</section>

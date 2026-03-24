@@ -1,0 +1,46 @@
+<section class="pay-page">
+  <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+  <mat-card class="pay-card" *ngIf="summary() as s">
+    <p class="eyebrow">Public Payment Link</p>
+    <h2>Invoice Payment</h2>
+
+    <dl>
+      <div>
+        <dt>Invoice ID</dt>
+        <dd>{{ s.invoiceId }}</dd>
+      </div>
+      <div>
+        <dt>Template</dt>
+        <dd>{{ s.templateName }}</dd>
+      </div>
+      <div>
+        <dt>Amount</dt>
+        <dd>{{ s.total | currency : 'INR' : 'symbol' : '1.0-2' }}</dd>
+      </div>
+      <div>
+        <dt>Status</dt>
+        <dd>
+          <mat-chip [ngClass]="s.status.toLowerCase()">{{ s.status }}</mat-chip>
+        </dd>
+      </div>
+    </dl>
+
+    <div class="actions">
+      <button mat-flat-button color="primary" (click)="createOrder()" [disabled]="creatingOrder || s.status === 'PAID'">
+        {{ creatingOrder ? 'Creating Order...' : 'Proceed to Payment' }}
+      </button>
+    </div>
+
+    <mat-card class="order-box" *ngIf="orderId()">
+      <h3>Razorpay Order Ready</h3>
+      <p><strong>Order ID:</strong> {{ orderId() }}</p>
+      <p *ngIf="orderAmount() !== null"><strong>Amount:</strong> {{ orderAmount() }} {{ orderCurrency() }}</p>
+      <p class="hint">Use this order id in Razorpay checkout options and complete payment on your frontend hook.</p>
+    </mat-card>
+
+    <p class="ok" *ngIf="message">{{ message }}</p>
+  </mat-card>
+
+  <p class="error" *ngIf="error">{{ error }}</p>
+</section>

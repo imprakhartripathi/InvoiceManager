@@ -1,0 +1,115 @@
+@use '@angular/material' as mat;
+@import 'tailwindcss';
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+:root {
+  --bg-app: #eef3f9;
+  --bg-surface: #ffffff;
+  --text-strong: #0f172a;
+  --text-body: #1f2937;
+  --text-muted: #475569;
+  --border-soft: #d5deea;
+  --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+body {
+  color-scheme: light;
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 10% -10%, rgba(14, 116, 144, 0.09) 0, rgba(14, 116, 144, 0) 35%),
+    radial-gradient(circle at 95% 0%, rgba(37, 99, 235, 0.08) 0, rgba(37, 99, 235, 0) 30%),
+    var(--bg-app);
+  color: var(--text-body);
+  font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+  line-height: 1.45;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--text-strong);
+}
+
+p {
+  color: var(--text-body);
+}
+
+a {
+  color: #0b63c9;
+}
+
+.mat-mdc-card {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft) !important;
+  padding: 1.1rem;
+}
+
+.mat-mdc-card-title,
+.mat-mdc-card-subtitle,
+.mat-mdc-card-content,
+.mat-mdc-list-item-title,
+.mdc-list-item__primary-text {
+  color: var(--text-strong) !important;
+}
+
+.mat-mdc-form-field {
+  .mdc-floating-label,
+  .mat-mdc-form-field-hint,
+  .mat-mdc-form-field-error {
+    color: var(--text-muted) !important;
+  }
+
+  .mdc-text-field--outlined {
+    background: #fbfdff;
+    border-radius: 12px;
+  }
+
+  .mdc-text-field__input,
+  .mat-mdc-select-value-text {
+    color: var(--text-strong) !important;
+  }
+}
+
+.mat-mdc-chip {
+  border: 1px solid #c8d8eb;
+}
+
+.mat-mdc-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button {
+  text-transform: none !important;
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+.page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.eyebrow {
+  color: #5b6f89 !important;
+  font-weight: 700;
+}
+
+.muted {
+  color: var(--text-muted) !important;
+}

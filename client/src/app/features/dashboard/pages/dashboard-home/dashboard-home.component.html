@@ -1,0 +1,51 @@
+<section class="dashboard">
+  <mat-card class="welcome-card">
+    <p class="eyebrow">Workspace</p>
+    <h2>Welcome, {{ userEmail }}</h2>
+    <p>Manage dynamic templates, invoice generation, payment collection, and SMTP delivery from one place.</p>
+    <div class="cta-row">
+      <button mat-button color="primary" routerLink="/templates/new">Create Template</button>
+      <button mat-button color="primary" routerLink="/invoices/new">Create Invoice</button>
+      <button mat-button routerLink="/settings">SMTP Settings</button>
+    </div>
+  </mat-card>
+
+  <div class="stats-grid">
+    <mat-card class="stat">
+      <p>Total Templates</p>
+      <h3>{{ totalTemplates() }}</h3>
+    </mat-card>
+    <mat-card class="stat">
+      <p>Total Invoices</p>
+      <h3>{{ totalInvoices() }}</h3>
+    </mat-card>
+    <mat-card class="stat">
+      <p>Draft Invoices</p>
+      <h3>{{ draftInvoices() }}</h3>
+    </mat-card>
+    <mat-card class="stat">
+      <p>Paid Invoices</p>
+      <h3>{{ paidInvoices() }}</h3>
+    </mat-card>
+  </div>
+
+  <mat-progress-bar mode="indeterminate" *ngIf="loading()"></mat-progress-bar>
+
+  <mat-card class="quick-links">
+    <h3>Next Steps</h3>
+    <mat-nav-list>
+      <a mat-list-item routerLink="/templates">
+        <mat-icon matListItemIcon>view_quilt</mat-icon>
+        <span matListItemTitle>Review Templates</span>
+      </a>
+      <a mat-list-item routerLink="/invoices">
+        <mat-icon matListItemIcon>receipt_long</mat-icon>
+        <span matListItemTitle>Track Invoice Status</span>
+      </a>
+      <a mat-list-item routerLink="/settings">
+        <mat-icon matListItemIcon>mail</mat-icon>
+        <span matListItemTitle>Configure SMTP Delivery</span>
+      </a>
+    </mat-nav-list>
+  </mat-card>
+</section>

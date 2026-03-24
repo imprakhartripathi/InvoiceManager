@@ -1,0 +1,134 @@
+.shell {
+  height: 100vh;
+}
+
+.sidebar {
+  width: 290px;
+  border-right: 1px solid #cfd9e6;
+  background: linear-gradient(180deg, #f9fcff 0%, #eef4fc 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.25rem 0.9rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.45rem 0.55rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: #0b1220;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.84rem;
+    color: #516278;
+  }
+}
+
+.brand-mark {
+  width: 2.3rem;
+  height: 2.3rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #0e7490 0%, #0369a1 100%);
+  color: #fff;
+  font-weight: 700;
+}
+
+.active-link {
+  background: #d5e8fa;
+  border-radius: 0.75rem;
+
+  .mdc-list-item__primary-text,
+  mat-icon {
+    color: #083b7a !important;
+    font-weight: 700;
+  }
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.9rem 0.55rem;
+  border-top: 1px solid #d7e2ef;
+}
+
+.user-mail {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #334155;
+  word-break: break-word;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topbar {
+  min-height: 84px;
+  height: 84px;
+  border-bottom: 1px solid #d6e0ec;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  display: flex;
+  gap: 0.9rem;
+  padding: 0 1.35rem;
+
+  h1 {
+    margin: 0;
+    font-size: 1.45rem;
+    line-height: 1.15;
+    color: #0f172a;
+    font-weight: 700;
+  }
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.77rem;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  color: #62748b;
+  font-weight: 700;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.page-content {
+  padding: 1.6rem 1.8rem 2.1rem;
+  overflow: auto;
+}
+
+.page-content > * {
+  width: min(1240px, 100%);
+  margin: 0 auto;
+}
+
+@media (max-width: 960px) {
+  .page-content {
+    padding: 1rem 0.9rem 1.4rem;
+  }
+
+  .topbar {
+    padding: 0 0.85rem;
+    min-height: 72px;
+    height: 72px;
+
+    h1 {
+      font-size: 1.22rem;
+    }
+  }
+}
