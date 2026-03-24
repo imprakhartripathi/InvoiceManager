@@ -5,6 +5,14 @@ import { switchMap } from 'rxjs/operators';
 import { InvoiceService } from '../../../invoices/invoice.service';
 import { PaymentService } from '../../payment.service';
 
+type RazorpayOrder = { orderId: string; keyId: string; amountInPaise: number; currency: string };
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
+  }
+}
+
 @Component({
   standalone: false,
   selector: 'app-pay-invoice',
@@ -58,12 +66,52 @@ export class PayInvoiceComponent implements OnInit {
         this.orderId.set(order.orderId);
         this.orderAmount.set(order.amountInPaise / 100);
         this.orderCurrency.set(order.currency);
-        this.message = 'Payment order created. Use this order with Razorpay checkout on your integration hook.';
+        this.openRazorpayCheckout(order);
       },
       error: () => {
         this.creatingOrder = false;
         this.error = 'Unable to create payment order.';
       }
     });
+  }
+
+  private openRazorpayCheckout(order: RazorpayOrder): void {
+    const invoice = this.summary();
+    if (!invoice) {
+      return;
+    }
+    if (!order.keyId) {
+      this.error = 'Razorpay key is missing on server configuration.';
+      return;
+    }
+    if (!window.Razorpay) {
+      this.error = 'Razorpay checkout failed to load. Refresh and try again.';
+      return;
+    }
+
+    const options: Record<string, unknown> = {
+      key: order.keyId,
+      amount: order.amountInPaise,
+      currency: order.currency,
+      name: 'Invoice Manager',
+      description: `Invoice ${invoice.invoiceId}`,
+      order_id: order.orderId,
+      handler: () => {
+        this.message = 'Payment completed. Status will update after webhook confirmation.';
+        this.error = '';
+      },
+      modal: {
+        ondismiss: () => {
+          this.message = '';
+          this.error = 'Payment popup closed before completion.';
+        }
+      },
+      theme: {
+        color: '#0b5fc0'
+      }
+    };
+
+    const checkout = new window.Razorpay(options);
+    checkout.open();
   }
 }

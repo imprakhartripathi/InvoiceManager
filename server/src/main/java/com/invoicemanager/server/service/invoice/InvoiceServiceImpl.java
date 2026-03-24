@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.invoicemanager.server.dto.invoice.CreateInvoiceRequest;
@@ -35,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class InvoiceServiceImpl implements InvoiceService {
+    private static final Logger log = LoggerFactory.getLogger(InvoiceServiceImpl.class);
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
 
     private final TemplateRepository templateRepository;
@@ -127,6 +130,8 @@ public class InvoiceServiceImpl implements InvoiceService {
         try {
             emailOrchestratorService.sendInvoice(owner, invoice, settings, recipient);
         } catch (Exception ex) {
+            log.error("Invoice send email failed userId={} invoiceId={} recipient={}",
+                    userId, invoiceId, recipient, ex);
             throw new ValidationException("Unable to send invoice email. Check SMTP settings and recipient email.");
         }
         return toResponse(invoiceRepository.save(invoice));

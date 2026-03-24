@@ -4,6 +4,10 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 import com.invoicemanager.server.model.Invoice;
 import com.invoicemanager.server.model.User;
@@ -15,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CustomSmtpEmailService implements EmailService {
+    private static final Logger log = LoggerFactory.getLogger(CustomSmtpEmailService.class);
 
     private final EncryptionUtil encryptionUtil;
 
@@ -32,13 +37,29 @@ public class CustomSmtpEmailService implements EmailService {
         sender.setPort(settings.getSmtp().getPort());
         sender.setUsername(settings.getSmtp().getEmail());
         sender.setPassword(encryptionUtil.decrypt(settings.getSmtp().getEncryptedAppPassword()));
+        Properties props = sender.getJavaMailProperties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.connectiontimeout", "10000");
+        props.put("mail.smtp.timeout", "10000");
+        props.put("mail.smtp.writetimeout", "10000");
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(settings.getSmtp().getEmail());
         message.setTo(recipient);
         message.setSubject("Invoice " + invoice.getId() + " from " + invoice.getDisplayName());
         message.setText(buildInvoiceEmailBody(user, invoice));
-        sender.send(message);
+        try {
+            sender.send(message);
+        } catch (Exception ex) {
+            log.error("Custom SMTP send failed for invoiceId={} recipient={} smtpHost={} smtpEmail={}",
+                    invoice.getId(),
+                    recipient,
+                    settings.getSmtp().getHost(),
+                    settings.getSmtp().getEmail(),
+                    ex);
+            throw ex;
+        }
     }
 
     private String buildInvoiceEmailBody(User user, Invoice invoice) {

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.invoicemanager.server.model.Invoice;
 import com.invoicemanager.server.model.User;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class DefaultEmailService implements EmailService {
+    private static final Logger log = LoggerFactory.getLogger(DefaultEmailService.class);
 
     private final JavaMailSender mailSender;
 
@@ -30,7 +33,16 @@ public class DefaultEmailService implements EmailService {
         message.setTo(recipient);
         message.setSubject("Invoice " + invoice.getId() + " from " + invoice.getDisplayName());
         message.setText(buildInvoiceEmailBody(user, invoice));
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+        } catch (Exception ex) {
+            log.error("Default SMTP send failed for invoiceId={} recipient={} from={}",
+                    invoice.getId(),
+                    recipient,
+                    from,
+                    ex);
+            throw ex;
+        }
     }
 
     private String buildInvoiceEmailBody(User user, Invoice invoice) {
